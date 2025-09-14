@@ -1,4 +1,4 @@
-# CloudWerx ADDM Tool
+# ADDM Tool
 
 **Application Discovery and Dependency Mapping Tool**
 
@@ -52,7 +52,7 @@ Web UI → Flask App → Docker Containers → Neo4j Database → Reports
 ### 1. Clone the Repository
 ```bash
 git clone <repository-url>
-cd cloudwerx-addm-tool
+cd comp-addm-tool
 ```
 
 ### 2. Set Up Python Environment
@@ -113,7 +113,7 @@ Your AWS credentials need the following permissions:
 ### Start the Application
 ```bash
 # Make sure you're in the project directory
-cd cloudwerx-addm-tool
+cd comp-addm-tool
 
 # Activate virtual environment (if not already active)
 source venv/bin/activate
