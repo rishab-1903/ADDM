@@ -1,0 +1,9 @@
+aws-creds/
+*.json
+.env
+__pycache__/
+venv/
+.csv
+.xlsx
+logo.svg
+tmp/

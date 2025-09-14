@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Discovery and Dependency Mapping Tool for CloudWerx</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header - Fixed */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            max-width: 100%;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .logo {
+            height: 40px;
+            margin-right: 1rem;
+            border-radius: 8px;
+        }
+        
+        .header-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(16px, 2.5vw, 22px);
+            font-weight: 600;
+            color: #1a237e;
+            background: linear-gradient(45deg, #1a237e, #3949ab);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            color: #37474f;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        /* Main Container - Full Height */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-top: 80px; /* Header height offset */
+            min-height: calc(100vh - 80px);
+        }
+        
+        /* Login Page - Full Screen */
+        .login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            padding: 2rem;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: clamp(2rem, 5vw, 4rem);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .login-card h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(24px, 4vw, 32px);
+            color: #1a237e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-card p {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: clamp(14px, 2vw, 16px);
+        }
+        
+        /* Main App - Full Screen Layout */
+        .app-layout {
+            display: flex;
+            height: 100%;
+            min-height: calc(100vh - 80px);
+        }
+        
+        /* Sidebar - Responsive */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(0,0,0,0.1);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            background: rgba(33, 150, 243, 0.05);
+        }
+        
+        .sidebar-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a237e;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 1rem 0;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: #37474f;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            margin: 0.25rem 0;
+        }
+        
+        .nav-link:hover {
+            background: rgba(33, 150, 243, 0.1);
+            border-left-color: #2196f3;
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(135deg, #2196f3, #21cbf3);
+            color: white;
+            border-left-color: #1976d2;
+        }
+        
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            font-size: 16px;
+        }
+        
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #37474f;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        /* Content Area - Full Width */
+        .content {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .page {
+            display: none;
+            flex: 1;
+            padding: clamp(1rem, 3vw, 2.5rem);
+        }
+        
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f5f5f5;
+        }
+        
+        .page-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(24px, 4vw, 32px);
+            color: #1a237e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: #666;
+            font-size: clamp(14px, 2vw, 16px);
+            line-height: 1.6;
+        }
+        
+        /* Form Sections - Responsive Grid */
+        .form-section {
+            background: white;
+            padding: clamp(1.5rem, 3vw, 2rem);
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+        }
+        
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(18px, 3vw, 22px);
+            color: #3949ab;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 0.75rem;
+            color: #ffd54f;
+        }
+        
+        /* Responsive Form Grid */
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+        
+        .form-grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #37474f;
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+        }
+        
+        input, textarea, select {
+            padding: 1rem;
+            border: 2px solid #e3f2fd;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            background: white;
+            width: 100%;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: #2196f3;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        /* Responsive Buttons */
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #2196f3, #21cbf3);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #ff7043);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(45deg, #ffd54f, #ffca28);
+            color: #37474f;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Status Cards */
+        .status-card {
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+            border-left: 5px solid;
+        }
+        
+        .status-success {
+            background: rgba(76, 175, 80, 0.1);
+            border-left-color: #4caf50;
+            color: #2e7d32;
+        }
+        
+        .status-error {
+            background: rgba(244, 67, 54, 0.1);
+            border-left-color: #f44336;
+            color: #c62828;
+        }
+        
+        .status-info {
+            background: rgba(33, 150, 243, 0.1);
+            border-left-color: #2196f3;
+            color: #1976d2;
+        }
+        
+        .status-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left-color: #ffc107;
+            color: #f57c00;
+        }
+        
+        /* Loading Animation */
+        .loading-container {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(33, 150, 243, 0.2);
+            border-top: 4px solid #2196f3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Download Grid - Responsive */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .download-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+        
+        .download-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        
+        .download-item i {
+            font-size: 3rem;
+            color: #2196f3;
+            margin-bottom: 1rem;
+        }
+        
+        .download-item h3 {
+            color: #37474f;
+            margin-bottom: 0.75rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+        }
+        
+        .download-item p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        /* Neo4j Card */
+        .neo4j-card {
+            background: linear-gradient(135deg, #ff9800, #ff6f00);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .neo4j-card h3 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        /* Code Blocks */
+        .code-sample {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+        
+        .code-sample code {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 5px;
+            display: block;
+            margin: 0.75rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        
+        /* Utilities */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .flex-center { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        
+        /* Message Area - Fixed Position */
+        #message-area {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            z-index: 1001;
+            max-width: 400px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+            
+            .sidebar {
+                width: 260px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .download-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 80px;
+                height: calc(100vh - 80px);
+                transform: translateX(-100%);
+                z-index: 999;
+                width: 280px;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .app-layout {
+                flex-direction: column;
+            }
+            
+            .content {
+                width: 100%;
+            }
+            
+            .header-title {
+                display: none;
+            }
+            
+            .page {
+                padding: 1rem;
+            }
+            
+            .download-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                gap: 1rem;
+            }
+            
+            .btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 13px;
+            }
+            
+            #message-area {
+                right: 1rem;
+                left: 1rem;
+                max-width: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .form-section {
+                padding: 1rem;
+            }
+            
+            .download-item {
+                padding: 1.5rem;
+            }
+            
+            .neo4j-card {
+                padding: 1.5rem;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .code-sample {
+                background: #2d3748;
+                color: #e2e8f0;
+            }
+            
+            .code-sample code {
+                background: #1a202c;
+                color: #e2e8f0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="logo.png" alt="CloudWerx Logo" class="logo">
+                <div class="header-title">CloudWerx ADDM Tool</div>
+            </div>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div id="user-info" class="user-info hidden">
+                <i class="fas fa-user-circle"></i>
+                <span id="username-display"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Login Page -->
+        <div id="login-page" class="login-page">
+            <div class="login-card">
+                <h1><i class="fas fa-network-wired" style="color: #2196f3; margin-right: 10px;"></i>Welcome</h1>
+                <p>Application Discovery and Dependency Mapping Tool</p>
+                
+                <div class="form-grid form-grid-2">
+                    <div class="form-group">
+                        <label for="username"><i class="fas fa-user"></i> Username:</label>
+                        <input type="text" id="username" placeholder="Enter your username">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password"><i class="fas fa-lock"></i> Password:</label>
+                        <input type="password" id="password" placeholder="Enter your password">
+                    </div>
+                </div>
+                
+                <div class="flex-center mt-2">
+                    <button class="btn btn-primary" onclick="login()">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button class="btn btn-success" onclick="signup()">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </button>
+                </div>
+                
+                <div id="login-message"></div>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="hidden">
+            <div class="app-layout">
+                <!-- Sidebar Navigation -->
+                <nav class="sidebar" id="sidebar">
+                    <div class="sidebar-header">
+                        <div class="sidebar-title">Navigation</div>
+                    </div>
+                    <ul class="nav-menu">
+                        <li><a href="#" class="nav-link active" onclick="showPage('configure')">
+                            <i class="fas fa-cogs"></i> Configure & Run
+                        </a></li>
+                        <li><a href="#" class="nav-link" onclick="showPage('downloads')">
+                            <i class="fas fa-download"></i> Download Results
+                        </a></li>
+                        <li><a href="#" class="nav-link" onclick="showPage('neo4j')">
+                            <i class="fas fa-project-diagram"></i> Explore Graph
+                        </a></li>
+                        <li><a href="#" class="nav-link" onclick="showPage('settings')">
+                            <i class="fas fa-tools"></i> Session & Settings
+                        </a></li>
+                    </ul>
+                </nav>
+
+                <!-- Content Area -->
+                <main class="content">
+                    <!-- Configure & Run Page -->
+                    <div id="configure-page" class="page active">
+                        <div class="page-header">
+                            <h1 class="page-title">Configure AWS Analysis</h1>
+                            <p class="page-subtitle">Enter your AWS credentials and settings to discover your infrastructure dependencies</p>
+                        </div>
+
+                        <div class="form-section">
+                            <h2 class="section-title">
+                                <i class="fab fa-aws"></i> AWS Configuration
+                            </h2>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="account-name">Account Name:</label>
+                                    <input type="text" id="account-name" placeholder="Enter a friendly name for this AWS account">
+                                </div>
+                                <div class="form-group">
+                                    <label for="aws-profile">AWS Profile Name:</label>
+                                    <input type="text" id="aws-profile" placeholder="e.g., default or your-profile-name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="aws-region">AWS Default Region:</label>
+                                    <select id="aws-region">
+                                        <option value="us-east-1">us-east-1</option>
+                                        <option value="us-west-2">us-west-2</option>
+                                        <option value="eu-west-1">eu-west-1</option>
+                                        <option value="ap-southeast-1">ap-southeast-1</option>
+                                        <option value="us-west-1">us-west-1</option>
+                                        <option value="eu-central-1">eu-central-1</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="aws-access-key">AWS Access Key ID:</label>
+                                    <input type="text" id="aws-access-key" placeholder="AKIA...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="aws-secret-key">AWS Secret Access Key:</label>
+                                    <input type="password" id="aws-secret-key" placeholder="Your secret access key">
+                                </div>
+                                <div class="form-group form-group-full">
+                                    <label for="aws-session-token">AWS Session Token (optional):</label>
+                                    <textarea id="aws-session-token" placeholder="Leave empty if using permanent credentials"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-database"></i> Neo4j Database Configuration
+                            </h2>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="neo4j-uri">Neo4j URI:</label>
+                                    <input type="text" id="neo4j-uri" value="bolt://cartography-neo4j:7687" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="neo4j-user">Neo4j User:</label>
+                                    <input type="text" id="neo4j-user" value="neo4j" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="neo4j-password">Neo4j Password:</label>
+                                    <input type="password" id="neo4j-password" placeholder="Enter a password for Neo4j database">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button id="run-btn" class="btn btn-success" onclick="runPipeline()">
+                                <i class="fas fa-play"></i> Run Complete Analysis
+                            </button>
+                        </div>
+
+                        <div id="pipeline-status"></div>
+                    </div>
+
+                    <!-- Downloads Page -->
+                    <div id="downloads-page" class="page">
+                        <div class="page-header">
+                            <h1 class="page-title">Download Results</h1>
+                            <p class="page-subtitle">Download the generated analysis files and reports</p>
+                        </div>
+
+                        <div class="download-grid">
+                            <div class="download-item">
+                                <i class="fas fa-table"></i>
+                                <h3>Nodes Data</h3>
+                                <p>Raw CSV data of all discovered AWS resources and their properties</p>
+                                <button class="btn btn-primary" onclick="downloadFile('export0.csv')">
+                                    <i class="fas fa-download"></i> Download CSV
+                                </button>
+                            </div>
+                            
+                            <div class="download-item">
+                                <i class="fas fa-network-wired"></i>
+                                <h3>Relationships Data</h3>
+                                <p>CSV data showing how AWS resources connect and depend on each other</p>
+                                <button class="btn btn-primary" onclick="downloadFile('export1.csv')">
+                                    <i class="fas fa-download"></i> Download CSV
+                                </button>
+                            </div>
+                            
+                            <div class="download-item">
+                                <i class="fas fa-file-excel"></i>
+                                <h3>Nodes by Labels</h3>
+                                <p>Excel report organizing resources by type (EC2, S3, RDS, etc.)</p>
+                                <button class="btn btn-success" onclick="downloadFile('neo4j_nodes_by_labels.xlsx')">
+                                    <i class="fas fa-download"></i> Download Excel
+                                </button>
+                            </div>
+                            
+                            <div class="download-item">
+                                <i class="fas fa-sitemap"></i>
+                                <h3>Root Mappings</h3>
+                                <p>Excel report showing hierarchical relationships and account mappings</p>
+                                <button class="btn btn-success" onclick="downloadFile('node_to_root_mapping.xlsx')">
+                                    <i class="fas fa-download"></i> Download Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Neo4j Page -->
+                    <div id="neo4j-page" class="page">
+                        <div class="page-header">
+                            <h1 class="page-title">Explore Graph Database</h1>
+                            <p class="page-subtitle">Visualize and query your AWS infrastructure using Neo4j Browser</p>
+                        </div>
+
+                        <div class="neo4j-card">
+                            <h3><i class="fas fa-project-diagram"></i> Neo4j Graph Database</h3>
+                            <p>Your AWS infrastructure has been mapped into a graph database where you can explore relationships, run queries, and discover dependencies visually.</p>
+                            
+                            <button class="btn btn-warning" onclick="openNeo4jUI()">
+                                <i class="fas fa-external-link-alt"></i> Open Neo4j Browser
+                            </button>
+                        </div>
+
+                        <div class="form-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-lightbulb"></i> Sample Queries
+                            </h2>
+                            <div class="code-sample">
+                                <p><strong>Find all EC2 instances:</strong></p>
+                                <code>MATCH (n:EC2Instance) RETURN n LIMIT 25</code>
+                                
+                                <p><strong>Show relationships between resources:</strong></p>
+                                <code>MATCH (a)-[r]->(b) RETURN a, r, b LIMIT 50</code>
+                                
+                                <p><strong>Find resources in a specific region:</strong></p>
+                                <code>MATCH (n) WHERE n.region = 'us-east-1' RETURN n LIMIT 25</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Page -->
+                    <div id="settings-page" class="page">
+                        <div class="page-header">
+                            <h1 class="page-title">Session & Settings</h1>
+                            <p class="page-subtitle">Manage your session and clean up resources</p>
+                        </div>
+
+                        <div class="form-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-trash-alt"></i> Session Management
+                            </h2>
+                            <p style="margin-bottom: 1.5rem; color: #666; line-height: 1.6;">
+                                When you're done with your analysis, use the "End Session" button to clean up all Docker containers, 
+                                networks, volumes, and delete your credentials from cloud storage. This ensures no resources are left running.
+                            </p>
+                            
+                            <button class="btn btn-danger" onclick="endSession()">
+                                <i class="fas fa-power-off"></i> End Session & Cleanup
+                            </button>
+                        </div>
+
+                        <div class="form-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-info-circle"></i> Session Status
+                            </h2>
+                            <div id="session-status">
+                                <p>Loading session information...</p>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <div id="message-area"></div>
+
+    <script>
+        let currentUser = null;
+        let users = {};
+        
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !toggle.contains(event.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+        
+        // Close mobile menu on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
+        
+        function showMessage(message, type = 'info') {
+            const area = document.getElementById('message-area');
+            area.innerHTML = `<div class="status-card status-${type}">${message}</div>`;
+            setTimeout(() => area.innerHTML = '', 5000);
+        }
+        
+        function showLoginMessage(message, type = 'error') {
+            const area = document.getElementById('login-message');
+            area.innerHTML = `<div class="status-card status-${type}" style="margin-top: 1.5rem;">${message}</div>`;
+            setTimeout(() => area.innerHTML = '', 3000);
+        }
+        
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showLoginMessage('Please enter both username and password');
+                return;
+            }
+            
+            if (users[username] && users[username] === password) {
+                currentUser = username;
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('user-info').classList.remove('hidden');
+                document.getElementById('username-display').textContent = username;
+                showMessage(`Welcome back, ${username}!`, 'success');
+                loadSessionStatus();
+            } else {
+                showLoginMessage('Invalid username or password');
+            }
+        }
+        
+        function signup() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showLoginMessage('Please enter both username and password');
+                return;
+            }
+            
+            if (users[username]) {
+                showLoginMessage('Username already exists');
+                return;
+            }
+            
+            users[username] = password;
+            currentUser = username;
+            
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('user-info').classList.remove('hidden');
+            document.getElementById('username-display').textContent = username;
+            showMessage(`Account created successfully! Welcome, ${username}!`, 'success');
+            loadSessionStatus();
+        }
+        
+        function showPage(pageId) {
+            // Close mobile menu
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Remove active class from nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId + '-page').classList.add('active');
+            
+            // Add active class to clicked nav link
+            event.target.closest('.nav-link').classList.add('active');
+            
+            // Load session status if on settings page
+            if (pageId === 'settings') {
+                loadSessionStatus();
+            }
+        }
+        
+        async function runPipeline() {
+            const accountName = document.getElementById('account-name').value;
+            const awsProfile = document.getElementById('aws-profile').value;
+            const awsRegion = document.getElementById('aws-region').value;
+            const awsAccessKey = document.getElementById('aws-access-key').value;
+            const awsSecretKey = document.getElementById('aws-secret-key').value;
+            const awsSessionToken = document.getElementById('aws-session-token').value;
+            const neo4jUri = document.getElementById('neo4j-uri').value;
+            const neo4jUser = document.getElementById('neo4j-user').value;
+            const neo4jPassword = document.getElementById('neo4j-password').value;
+            
+            if (!accountName || !awsProfile || !awsAccessKey || !awsSecretKey || !neo4jPassword) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            let credentialsString = `[${awsProfile}]\naws_access_key_id = ${awsAccessKey}\naws_secret_access_key = ${awsSecretKey}`;
+            if (awsSessionToken.trim()) {
+                credentialsString += `\naws_session_token = ${awsSessionToken.trim()}`;
+            }
+            
+            const payload = {
+                AWS_PROFILE: awsProfile,
+                AWS_DEFAULT_REGION: awsRegion,
+                NEO4J_USER: neo4jUser,
+                NEO4J_PASSWORD: neo4jPassword,
+                NEO4J_URI: neo4jUri,
+                credentials: credentialsString
+            };
+            
+            const statusDiv = document.getElementById('pipeline-status');
+            const runBtn = document.getElementById('run-btn');
+            
+            runBtn.disabled = true;
+            runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+            
+            statusDiv.innerHTML = `
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <h3>Analysis in Progress</h3>
+                    <p>Scanning your AWS infrastructure... This may take 15-20 minutes.</p>
+                    <p style="color: #666; font-size: 14px;">Please keep this tab open while the analysis completes.</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/run-complete-pipeline', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage('Pipeline completed successfully!', 'success');
+                    statusDiv.innerHTML = `
+                        <div class="status-card status-success">
+                            <h3><i class="fas fa-check-circle"></i> Analysis Complete!</h3>
+                            <p>${result.message}</p>
+                            <p>Your AWS infrastructure has been successfully mapped. You can now:</p>
+                            <ul style="margin: 1rem 0; text-align: left; padding-left: 1.5rem;">
+                                <li>Download analysis files from the Downloads tab</li>
+                                <li>Explore your infrastructure graph in Neo4j</li>
+                                <li>Run custom queries on your data</li>
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    showMessage(`Pipeline failed: ${result.message}`, 'error');
+                    statusDiv.innerHTML = `
+                        <div class="status-card status-error">
+                            <h3><i class="fas fa-exclamation-circle"></i> Analysis Failed</h3>
+                            <p>${result.message}</p>
+                            <p>Please check your credentials and try again.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+                statusDiv.innerHTML = `
+                    <div class="status-card status-error">
+                        <h3><i class="fas fa-wifi"></i> Connection Error</h3>
+                        <p>${error.message}</p>
+                        <p>Please check your internet connection and try again.</p>
+                    </div>
+                `;
+            } finally {
+                runBtn.disabled = false;
+                runBtn.innerHTML = '<i class="fas fa-play"></i> Run Complete Analysis';
+            }
+        }
+        
+        function openNeo4jUI() {
+            const neo4jUrl = 'http://localhost:7474';
+            const neo4jWindow = window.open(neo4jUrl, '_blank', 'width=1400,height=900,scrollbars=yes,resizable=yes');
+            
+            if (neo4jWindow) {
+                showMessage('Neo4j Browser opened in new window', 'info');
+            } else {
+                showMessage('Please allow pop-ups or navigate to http://localhost:7474 manually', 'warning');
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(neo4jUrl).then(() => {
+                        showMessage('Neo4j URL copied to clipboard: http://localhost:7474', 'info');
+                    });
+                }
+            }
+        }
+        
+        async function downloadFile(filename) {
+            try {
+                const response = await fetch(`/download/${filename}`);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showMessage(`Downloaded ${filename}`, 'success');
+                } else {
+                    showMessage(`File ${filename} not found`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Error downloading ${filename}: ${error.message}`, 'error');
+            }
+        }
+        
+        async function endSession() {
+            if (!confirm('Are you sure you want to end the session? This will clean up all Docker resources and delete credentials.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/end-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage('Session ended successfully. All resources cleaned up.', 'success');
+                    
+                    // Reset form
+                    document.querySelectorAll('input[type="text"], input[type="password"], textarea').forEach(input => {
+                        if (input.id !== 'neo4j-user' && input.id !== 'neo4j-uri') {
+                            input.value = '';
+                        }
+                    });
+                    
+                    document.getElementById('pipeline-status').innerHTML = '';
+                    loadSessionStatus();
+                } else {
+                    showMessage(`Failed to end session: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Error ending session: ${error.message}`, 'error');
+            }
+        }
+        
+        async function loadSessionStatus() {
+            try {
+                const response = await fetch('/status');
+                const result = await response.json();
+                
+                const statusDiv = document.getElementById('session-status');
+                
+                if (response.ok) {
+                    const containers = result.containers;
+                    const files = result.output_files;
+                    
+                    let statusHTML = '<div class="form-grid">';
+                    
+                    // Container Status
+                    statusHTML += `
+                        <div class="status-card ${containers.neo4j === 'running' ? 'status-success' : 'status-warning'}">
+                            <strong><i class="fas fa-database"></i> Neo4j Container:</strong> 
+                            ${containers.neo4j === 'running' ? 'Running' : 'Stopped'}
+                        </div>
+                        <div class="status-card ${containers.cartography === 'exited' ? 'status-success' : containers.cartography === 'running' ? 'status-info' : 'status-warning'}">
+                            <strong><i class="fas fa-search"></i> Cartography Container:</strong> 
+                            ${containers.cartography === 'exited' ? 'Completed' : containers.cartography === 'running' ? 'Running' : 'Stopped'}
+                        </div>
+                    `;
+                    
+                    // Files Status
+                    const fileNames = {
+                        'export0.csv': 'Nodes CSV',
+                        'export1.csv': 'Relationships CSV', 
+                        'neo4j_nodes_by_labels.xlsx': 'Nodes Excel',
+                        'node_to_root_mapping.xlsx': 'Mapping Excel'
+                    };
+                    
+                    Object.entries(files).forEach(([file, exists]) => {
+                        statusHTML += `
+                            <div class="status-card ${exists ? 'status-success' : 'status-warning'}">
+                                <strong><i class="fas fa-file"></i> ${fileNames[file]}:</strong> 
+                                ${exists ? 'Available' : 'Not Generated'}
+                            </div>
+                        `;
+                    });
+                    
+                    statusHTML += '</div>';
+                    statusDiv.innerHTML = statusHTML;
+                } else {
+                    statusDiv.innerHTML = '<div class="status-card status-error">Could not load session status</div>';
+                }
+            } catch (error) {
+                document.getElementById('session-status').innerHTML = 
+                    '<div class="status-card status-error">Error loading status</div>';
+            }
+        }
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle keyboard navigation
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    if (window.innerWidth <= 768) {
+                        document.getElementById('sidebar').classList.remove('open');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

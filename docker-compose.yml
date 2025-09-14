@@ -1,0 +1,145 @@
+# version: '3.8'
+
+# networks:
+#   cartography-network:
+
+# volumes:
+#   neo4j-data:
+
+# services:
+#   neo4j:
+#     image: neo4j:4.4-community
+#     container_name: cartography-neo4j
+#     ports:
+#       - "7474:7474"
+#       - "7687:7687"
+#     networks:
+#       - cartography-network
+#     environment:
+#       - NEO4J_AUTH=neo4j/Neo4jtest@1234
+#     volumes:
+#       - neo4j-data:/data
+
+#   cartography-account1:
+#     image: ghcr.io/cartography-cncf/cartography:latest
+#     container_name: cartography-account1
+#     depends_on:
+#       - neo4j
+#     networks:
+#       - cartography-network
+#     environment:
+#       - AWS_PROFILE=${AWS_PROFILE}
+#       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+#       - NEO4J_USER=${NEO4J_USER}
+#       - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+#       - NEO4J_URI=${NEO4J_URI}
+#     volumes:
+#       - ../cred-aws:/var/cartography/.aws
+#     command:
+#       - "--neo4j-uri=${NEO4J_URI}"
+#       - "--neo4j-user=${NEO4J_USER}"
+#       - "--neo4j-password-env-var=NEO4J_PASSWORD"
+#     restart: on-failure
+
+#   streamlit:
+#     build:
+#       context: ./streamlit
+#     container_name: streamlit-ui
+#     depends_on:
+#       cartography-account1:
+#         condition: service_completed_successfully
+#     networks:
+#       - cartography-network
+#     ports:
+#       - "8501:8501"
+#     environment:
+#       - NEO4J_URI=${NEO4J_URI}
+#       - NEO4J_USER=${NEO4J_USER}
+#       - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+#     volumes:
+#       - ./streamlit:/app
+#     working_dir: /app
+#     command: streamlit run streamlit_app.py
+
+#   #  cartography-account1:
+#   #   image: ghcr.io/cartography-cncf/cartography:latest
+#   #   container_name: cartography-account1
+#   # cartography-account2:
+#   #   image: ghcr.io/cartography-cncf/cartography:latest
+#   #   container_name: cartography-account2
+#   #   depends_on:
+#   #     - neo4j
+#   #   networks:
+#   #     - cartography-network
+#   #   environment:
+#   #     - AWS_PROFILE=${AWS_PROFILE}
+#   #     - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+#   #   volumes:
+#   #     - ./cred-aws:/var/cartography/.aws
+#   #   command:
+#   #     - "--neo4j-uri=bolt://cartography-neo4j:7687"
+#   #     - "--neo4j-user=neo4j"
+#   #     - "--neo4j-password-env-var=NEO4J_PASSWORD"
+#   #   restart: on-failure
+
+version: '3.8'
+
+networks:
+  cartography-network:
+
+volumes:
+  neo4j-data:
+
+services:
+  neo4j:
+    image: neo4j:4.4-community
+    container_name: cartography-neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    networks:
+      - cartography-network
+    environment:
+      - NEO4J_AUTH=neo4j/Neo4jtest@1234
+    volumes:
+      - neo4j-data:/data
+
+  cartography-account1:
+    image: ghcr.io/cartography-cncf/cartography:latest
+    container_name: cartography-account1
+    depends_on:
+      - neo4j
+    networks:
+      - cartography-network
+    environment:
+      - AWS_PROFILE=${AWS_PROFILE}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - NEO4J_USER=${NEO4J_USER}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - NEO4J_URI=${NEO4J_URI}
+    volumes:
+      - ./cred-aws:/var/cartography/.aws
+    command:
+      - "--neo4j-uri=${NEO4J_URI}"
+      - "--neo4j-user=${NEO4J_USER}"
+      - "--neo4j-password-env-var=NEO4J_PASSWORD"
+    restart: on-failure
+
+  flask_backend:
+    build:
+      context: ./flask_backend
+    container_name: flask-app
+    networks:
+      - cartography-network
+    ports:
+      - "5000:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/app
+    working_dir: /app
+    environment:
+      - AWS_PROFILE=${AWS_PROFILE}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - NEO4J_USER=${NEO4J_USER}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - NEO4J_URI=${NEO4J_URI}
